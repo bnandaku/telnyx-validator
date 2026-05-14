@@ -10,11 +10,12 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o telnyx-validator .
 
 # Run stage
-FROM scratch
+FROM alpine:3.19
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/telnyx-validator /telnyx-validator
+RUN apk --no-cache add ca-certificates wget
+
+COPY --from=builder /app/telnyx-validator /usr/local/bin/telnyx-validator
 
 EXPOSE 8080
 
-ENTRYPOINT ["/telnyx-validator"]
+ENTRYPOINT ["telnyx-validator"]
